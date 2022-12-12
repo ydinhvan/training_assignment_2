@@ -45,7 +45,7 @@ void* reader(void* param)
         sem_post(&y);
     }
  
-    // Lock the semaphore
+    // UnLock the semaphore
     sem_post(&x);
  
     printf("\n%d Reader is leaving",
@@ -79,6 +79,7 @@ int main()
     struct sockaddr_storage serverStorage;
  
     socklen_t addr_size;
+    // initialise semaphore object
     sem_init(&x, 0, 1);
     sem_init(&y, 0, 1);
  
@@ -94,7 +95,7 @@ int main()
          sizeof(serverAddr));
  
     // Listen on the socket,
-    // with 40 max connection
+    // with 50 max connection
     // requests queued
     if (listen(serverSocket, 50) == 0)
         printf("Listening\n");
@@ -115,11 +116,12 @@ int main()
                            (struct sockaddr*)&serverStorage,
                            &addr_size);
         int choice = 0;
+        // read data send from socket, sent by client 
         recv(newSocket,
              &choice, sizeof(choice), 0);
  
         if (choice == 1) {
-            // Creater readers thread
+            // Create readers thread
             if (pthread_create(&readerthreads[i++], NULL,
                                reader, &newSocket)
                 != 0)
