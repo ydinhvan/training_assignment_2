@@ -2,26 +2,22 @@
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <stdio.h>
-#include <sys/mman.h>
-#include <sys/stat.h>        /* For mode constants */
-#include <fcntl.h>           /* For O_* constants */
 using namespace std;
 
-#define SHM_NAME "vany"
 int main()
 {
 	// ftok to generate unique key
-	key_t key = ftok("shmfile",65);
+	key_t key = ftok("shmfile",66);
 
-	int fd = shm_open(SHM_NAME, O_RDWR|O_CREAT, 0660);
 	// shmget returns an identifier in shmid
 	int shmid = shmget(key,1024,0666|IPC_CREAT);
-
+	printf("shmid %d",shmid);
 	// shmat to attach to shared memory
+	
 	char *str = (char*) shmat(shmid,(void*)0,0);
 
 	printf("Data read from memory: %s\n",str);
-	
+
 	//detach from shared memory
 	shmdt(str);
 	

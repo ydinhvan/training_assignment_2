@@ -37,7 +37,7 @@ void* clienthread(void* args)
 
 	// Check for connection error
 	if (connection_status < 0) {
-		puts("Error\n");        // server was not initialise
+		puts("Error\n");
 		return 0;
 	}
 
@@ -46,9 +46,6 @@ void* clienthread(void* args)
 	// Send data to the socket
 	send(network_socket, &client_request,
 		sizeof(client_request), 0);
-    printf("client_request = %d \n", client_request);
-    printf("sizeof(client_request) = %ld \n", sizeof(client_request));
-
 
 	// Close the connection
 	close(network_socket);
@@ -78,7 +75,7 @@ int main()
 		pthread_create(&tid, NULL,
 					clienthread,
 					&client_request);
-		//sleep(20);
+		sleep(20);
 		break;
 	}
 	case 2: {
@@ -88,7 +85,7 @@ int main()
 		pthread_create(&tid, NULL,
 					clienthread,
 					&client_request);
-		//sleep(20);
+		sleep(20);
 		break;
 	}
 	default:

@@ -9,7 +9,7 @@ int main()
 {
 	// ftok to generate unique key
 	key_t key = ftok("shmfile",65);
-
+	
 	// shmget returns an identifier in shmid
 	int shmid = shmget(key,1024,0666|IPC_CREAT);
 
@@ -26,7 +26,7 @@ int main()
     }
 
 	cout<<"Data written in memory: "<<str<<endl;
-	
+
 	//detach from shared memory
 	shmdt(str);
 
