@@ -12,21 +12,7 @@
  * 
 *************************************************/
 // Include statements
-#include <arpa/inet.h> /* htons, htonl */
-#include <netinet/in.h> /* various functions and constants */
-#include <stdio.h> /* stdin, stdout, printf */
-#include <stdlib.h> /* exit */
-#include <string.h> /* bzero */
-#include <time.h> /* time functions for server logging */
-
-// Constant value definitions
-#define DEFAULT_SERVER_PORT 9877
-#define LISTENQ 10 //max # of pending connections
-#define MAXCHARS 1024 //max # bytes sent between server & client
-
-// Type redefinitions (for more clarity)
-typedef struct sockaddr_in SA_in;
-typedef struct sockaddr SA;
+#include "include.h"
 
 // Global variables
 char prc_id_mes [100];
@@ -36,6 +22,11 @@ void run_client(fd_set* cli_fds, fd_set* main_fd, int* max_fd, int* sock_fd, cha
 void init_connection(char* ip_addr, fd_set* main_fd, fd_set* cli_fds, int* sock_fd, SA_in* serv_addr);
 void send_msg(char* name, int sock_fd);
 void recv_msg(int sock_fd);
+void sigintHandler(int sig_num);
+// int getpid();
+// int close();
+// int write();
+// int read();
 
 /**
  * Runs the program.
@@ -43,30 +34,22 @@ void recv_msg(int sock_fd);
 int main(int argc, char** argv)
 {
 	// Local variables
-	int sock_fd, max_fd, pid; //fd for this client's connection and max fd value
-	fd_set main_fd, cli_fds; //fd sets for main server and clients
-	SA_in serv_addr; //address struct for server
-	char* name = malloc(sizeof(char) * 50) ; //username
-	char* room_id = malloc(sizeof(char) * 50);
-	// // Verify the correct arguments are used
-	// if (argc != 3)
-	// {
-	// 	printf("Proper usage: client <IP address> <username>\n");
-	// 	exit(1);
-	// } //end if
-
-	// // Set user's name
-	// name = argv[2];
-	//name = "Dinh Van Y";
+	int sock_fd, max_fd, pid;   //fd for this client's connection and max fd value
+	fd_set main_fd, cli_fds;    //fd sets for main server and clients
+	SA_in serv_addr;            //address struct for server
+	char* name = malloc(sizeof(char) * 50) ;    //username
+	char* room_id = malloc(sizeof(char) * 50);  //room id
 	
 	printf("Welcome to chatting system!\n");
     printf("Please enter your name: ");
     fgets(name, MAXCHARS, stdin);
-    //scanf("%m[^\n]%*c",name);
+    
+    // skip newline "\n"
 	if ((strlen(name) > 0) && (name[strlen (name) - 1] == '\n'))
     {
         name[strlen (name) - 1] = '\0';
     }
+
     printf("Please enter room id: ");
     fgets(room_id, MAXCHARS, stdin);
     //scanf("%m[^\n]%*c",room_id);
@@ -78,21 +61,20 @@ int main(int argc, char** argv)
 	
     // get process_id
     pid = getpid();
+
     printf("Process ID: %d\n",pid);
-	char mess[100] = "Register for process: ";
+	
+    char mess[100] = "Register for process: ";
 	sprintf(prc_id_mes,"%d", pid);
 	strcat(mess, prc_id_mes);
 	//printf("==============Process ID: %s\n",prc_id_mes);
-    //printf("you : you :");
-    
-    // message send to client
     
 	// Initialize connection to server
 	init_connection("127.0.0.1", &main_fd, &cli_fds, &sock_fd, &serv_addr);
 	
 	// Output successful connection	
 	//printf("Successfully connected to %s.\n", "127.0.0.1");
-	printf("You may begin typing at any time.\n\n");
+	printf("Typing at any time to send message to other clients.\n");
 	
 	int val_send = send(sock_fd, prc_id_mes, strlen(prc_id_mes), 0);
 	if (send < 0)
@@ -102,10 +84,19 @@ int main(int argc, char** argv)
 	// Begin client interface
 	run_client(&cli_fds, &main_fd, &max_fd, &sock_fd, name);
 
+	// Catch signal
+	signal(SIGINT, sigintHandler);
+
 	// Close the connection
 	close(sock_fd);
 	return 0;
 } //end main
+
+// Signal Handler for SIGINT 
+void sigintHandler(int sig_num)
+{
+	exit(0);
+}
 
 /**
  * Begin running an infinite loop to process client activity, both from the
@@ -151,9 +142,11 @@ void init_connection(char* ip_addr, fd_set* main_fd, fd_set* cli_fds, int* sock_
 	inet_pton(AF_INET, ip_addr, &(serv_addr->sin_addr));
 	//printf("==============ip address: %s\n", ip_addr);
 	//printf("==============%d\n", serv_addr->sin_addr);
-	// Connect to the server
+	
+    // Connect to the server
 	connect(*sock_fd, (SA*)serv_addr, sizeof(SA));
 	//write(sock_fd, prc_id_mes, strlen(prc_id_mes));
+
 	// Clear fds before being added to the main fd_set
 	FD_ZERO(main_fd);
     FD_SET(0, main_fd);
@@ -173,26 +166,15 @@ void send_msg(char* name, int sock_fd)
 	fgets(msg_buf, MAXCHARS, stdin);
 
 	// See if user wants to quit (check the commands)...
-	if (strcmp(msg_buf, "/quit\n") == 0 ||
-	    strcmp(msg_buf, "/q\n") == 0 ||
-	    strcmp(msg_buf, "/disconnect\n") == 0 ||
-	    strcmp(msg_buf, "/dc\n") == 0 ||
-	    strcmp(msg_buf, "/exit\n") == 0 ||
-	    strcmp(msg_buf, "/ex\n") == 0)
+	if (strcmp(msg_buf, "/quit\n") == 0)
 	{
 		exit(0);
 	} //end if
 	else // ...or send a message!
 	{
-		 char full_msg[MAXCHARS] = {'0'};
-
-		// snprintf(full_msg, sizeof(msg_buf),
-		// 	 "%s: %s", name, msg_buf);
-		// write(sock_fd, prc_id_mes, strlen(prc_id_mes));
-
+		char full_msg[MAXCHARS] = {'0'};
 		snprintf(full_msg, sizeof(msg_buf),
 			 "%s: %s", name, msg_buf);
-		//printf("===============full_msg:%s\n",full_msg);
 		write(sock_fd, full_msg, strlen(full_msg));
 	} //end else
 } //end send_msg

@@ -1,4 +1,3 @@
-
 /*************************************************
  * Author: Dinh Van Y
  * 
@@ -11,26 +10,12 @@
  * send message to all client in room.
  * 
 *************************************************/
-// Include statements
-#include <arpa/inet.h> /* htons, htonl */
-#include <netinet/in.h> /* various functions and constants */
-#include <stdio.h> /* stdin, stdout, printf */
-#include <stdlib.h> /* exit */
-#include <string.h> /* bzero */
-#include <time.h> /* time functions for server logging */
-
-// Constant value definitions
-#define DEFAULT_SERVER_PORT 9877
-#define LISTENQ 10 //max # of pending connections
-#define MAXCHARS 1024 //max # bytes sent between server & client
-
-// Type redefinitions (for more clarity)
-typedef struct sockaddr_in SA_in;
-typedef struct sockaddr SA;
+#include "include.h"
 
 // Global variables
 int room_id = 1;
 char prc_id_mes[MAXCHARS];
+int number_clients = 0;
 
 // Function prototypes
 void run_server(int* serv_fd, fd_set* cli_fds, fd_set* main_fd, int* max_fd, SA_in* cli_addr);
@@ -150,7 +135,7 @@ void accept_client(int id, fd_set* main_fd, int* max_fd, int serv_fd, SA_in* cli
 	int new_fd = accept(serv_fd, (SA*)cli_addr, &addrlen);
 	//printf("==============cli_addr: %d\n",cli_addr->sin_addr.s_addr);
 
-	char prc_id_mes[MAXCHARS];
+	//char prc_id_mes[MAXCHARS];
 	int valread;
 	valread = read(new_fd, prc_id_mes, MAXCHARS);
 	//prc_id = strcat(prc_id,prc_id_mes);
@@ -170,7 +155,8 @@ void accept_client(int id, fd_set* main_fd, int* max_fd, int serv_fd, SA_in* cli
 		// If new client fd is highest, record it for select
 		if(new_fd > *max_fd)
 			*max_fd = new_fd;
-
+		number_clients = number_clients + 1;
+		printf("number clients: %d\n", number_clients);
 		// Log client connection to server
 		//char activity[75];
 		//printf("==============port: %d\n",cli_addr->sin_port);
@@ -214,7 +200,10 @@ void process_client(int id, fd_set* main_fd, int serv_fd, int max_fd)
 		snprintf(activity, sizeof(activity),
 			 "Socket %-2d disconnected\n", id);
 		log_activity(activity);
+		//printf("Unregister for process %s, room id %d\n", prc_id_mes,room_id);
 
+		number_clients = number_clients - 1;
+		printf("number clients: %d\n", number_clients);
 		// Close the connection with ex-client
 		close(id);
 		FD_CLR(id, main_fd);

@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/include.h
+arpa/inet.h
+-
+netinet/in.h
+-
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+time.h
+-
+signal.h
+-
+unistd.h
+-
+
+/home/vany/training_assignment_2/chatting_tool/source/ChatClient.c
+include.h
+/home/vany/training_assignment_2/chatting_tool/source/include.h
+
