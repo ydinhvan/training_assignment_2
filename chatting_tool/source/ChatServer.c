@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	fd_set main_fd, cli_fds; //fd sets for main server and clients
 	int serv_fd = 0, max_fd; //fd for server and max fd for select
 	SA_in serv_addr, cli_addr; //address structs for server and clients
-	
+	printf("=============max_fd_before: %d\n", max_fd);
 	// Do all pre-connection establishment for server properties
 	init_server(&main_fd, &cli_fds, &serv_fd, &serv_addr);
 
@@ -61,10 +61,15 @@ void run_server(int* serv_fd, fd_set* cli_fds, fd_set* main_fd, int* max_fd, SA_
 	{
 		*cli_fds = *main_fd;
 		
-		// When client activity occurs, store that client's fd
-		// in cli_fds for processing
+		// When client activity occurs, store that client's fd in cli_fds for processing
+		// select: allow a program to monitor multiple file descriptors, 
+		// waiting until one or more of the file descriptors become "ready" 
+		// for some class of I/O operation
+		//int select(int nfds, fd_set *readfds, fd_set *writefds,
+        //   		fd_set *exceptfds, struct timeval *timeout);
+		// default: max_fd = 3: is readfds, writefds, exceptfds
 		select(*max_fd+1, cli_fds, NULL, NULL, NULL);
-		
+		printf("=============max_fd_after: %d\n", *max_fd);
 		// Cycle through clients and see which one had activity
 		for (i = 0; i < *max_fd + 1; i++)
 		{
@@ -155,6 +160,7 @@ void accept_client(int id, fd_set* main_fd, int* max_fd, int serv_fd, SA_in* cli
 		// If new client fd is highest, record it for select
 		if(new_fd > *max_fd)
 			*max_fd = new_fd;
+		// Count number of clients
 		number_clients = number_clients + 1;
 		printf("number clients: %d\n", number_clients);
 		// Log client connection to server
