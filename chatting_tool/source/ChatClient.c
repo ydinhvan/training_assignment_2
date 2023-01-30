@@ -17,12 +17,6 @@
 // Global variables
 char prc_id_mes [100];
 
-// Function prototypes
-void run_client(fd_set* cli_fds, fd_set* main_fd, int* max_fd, int* sock_fd, char* name);
-void init_connection(char* ip_addr, fd_set* main_fd, fd_set* cli_fds, int* sock_fd, SA_in* serv_addr);
-void send_msg(char* name, int sock_fd);
-void recv_msg(int sock_fd);
-void sigintHandler(int sig_num);
 // int getpid();
 // int close();
 // int write();

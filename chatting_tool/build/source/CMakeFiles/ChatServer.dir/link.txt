@@ -1,1 +1,0 @@
-/usr/bin/cc CMakeFiles/ChatServer.dir/ChatServer.c.o -o ChatServer 

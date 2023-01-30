@@ -17,13 +17,6 @@ int room_id = 1;
 char prc_id_mes[MAXCHARS];
 int number_clients = 0;
 
-// Function prototypes
-void run_server(int* serv_fd, fd_set* cli_fds, fd_set* main_fd, int* max_fd, SA_in* cli_addr);
-void init_server(fd_set* main_fd, fd_set* cli_fds, int* serv_fd, SA_in* serv_addr);
-void accept_client(int id, fd_set* main_fd, int* max_fd, int serv_fd, SA_in* cli_addr);
-void process_client(int id, fd_set* main_fd, int serv_fd, int max_fd);
-void log_activity(char* msg);
-
 /**
  * Runs the program.
  **/

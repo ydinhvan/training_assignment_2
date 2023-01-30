@@ -1,6 +1,0 @@
-/home/vany/training_assignment_2/chatting_tool/build/CMakeFiles/rebuild_cache.dir
-/home/vany/training_assignment_2/chatting_tool/build/CMakeFiles/edit_cache.dir
-/home/vany/training_assignment_2/chatting_tool/build/source/CMakeFiles/rebuild_cache.dir
-/home/vany/training_assignment_2/chatting_tool/build/source/CMakeFiles/edit_cache.dir
-/home/vany/training_assignment_2/chatting_tool/build/source/CMakeFiles/ChatClient.dir
-/home/vany/training_assignment_2/chatting_tool/build/source/CMakeFiles/ChatServer.dir
